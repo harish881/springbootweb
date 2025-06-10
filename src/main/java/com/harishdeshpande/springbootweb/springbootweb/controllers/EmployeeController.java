@@ -1,11 +1,9 @@
 package com.harishdeshpande.springbootweb.springbootweb.controllers;
 
 import com.harishdeshpande.springbootweb.springbootweb.dto.EmployeeDTO;
-import com.harishdeshpande.springbootweb.springbootweb.entities.EmployeeEntity;
-import com.harishdeshpande.springbootweb.springbootweb.repositories.EmployeeRepository;
+import com.harishdeshpande.springbootweb.springbootweb.services.EmployeeService;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -17,26 +15,26 @@ public class EmployeeController {
 //        return "Secret message: aadkjaslj";
 //    }
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeService employeeService;
 
-    public EmployeeController(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
     @GetMapping(path="/{employeeId}")
-    public EmployeeEntity getEmployeeById(@PathVariable Long employeeId) {
+    public EmployeeDTO getEmployeeById(@PathVariable Long employeeId) {
 
-        return employeeRepository.findById(employeeId).orElse(null);
+        return employeeService.getEmployeeById(employeeId);
     }
 
     @GetMapping
-    public List<EmployeeEntity> getEmployees(@RequestParam(required = false) Integer age, @RequestParam(required = false) String sortBy){
+    public List<EmployeeDTO> getAllEmployees(@RequestParam(required = false) Integer age, @RequestParam(required = false) String sortBy){
 
-        return employeeRepository.findAll();
+        return employeeService.getAllEmployees();
     }
 
     @PostMapping
-    public EmployeeEntity createEmployee(@RequestBody EmployeeEntity inputEmployee){
-        return employeeRepository.save(inputEmployee);
+    public EmployeeDTO createEmployee(@RequestBody EmployeeDTO inputEmployee){
+        return employeeService.createNewEmployee(inputEmployee);
     }
 }
