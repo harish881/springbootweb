@@ -26,5 +26,6 @@ public class EmployeeEntity {
     private LocalDate dateOfJoining;
     @JsonProperty("isActive")
     private Boolean isActive;
+    private String role;
 
 }

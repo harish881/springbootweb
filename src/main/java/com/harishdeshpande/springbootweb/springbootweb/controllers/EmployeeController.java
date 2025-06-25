@@ -1,13 +1,16 @@
 package com.harishdeshpande.springbootweb.springbootweb.controllers;
 
 import com.harishdeshpande.springbootweb.springbootweb.dto.EmployeeDTO;
+import com.harishdeshpande.springbootweb.springbootweb.exceptions.ResourceNotFoundException;
 import com.harishdeshpande.springbootweb.springbootweb.services.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -28,9 +31,10 @@ public class EmployeeController {
     @GetMapping(path="/{employeeId}")
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable Long employeeId) {
         Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeById(employeeId);
-        return employeeDTO.map(employeeDTO1 ->ResponseEntity.ok(employeeDTO1)).orElse(ResponseEntity.notFound().build());
+        return employeeDTO.map(employeeDTO1 ->ResponseEntity.ok(employeeDTO1)).orElseThrow(() -> new ResourceNotFoundException("Employee Not found with id " + employeeId));
 
     }
+
 
     @GetMapping
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees(@RequestParam(required = false) Integer age, @RequestParam(required = false) String sortBy){
@@ -39,13 +43,13 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody EmployeeDTO inputEmployee){
+    public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody @Valid EmployeeDTO inputEmployee){
         EmployeeDTO savedEmployee =  employeeService.createNewEmployee(inputEmployee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{employeeId}")
-    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody EmployeeDTO inputEmployee, @PathVariable Long employeeId){
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody @Valid EmployeeDTO inputEmployee, @PathVariable Long employeeId){
 
         return ResponseEntity.ok(employeeService.updateEmployeeById(employeeId, inputEmployee));
     }

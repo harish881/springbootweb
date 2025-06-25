@@ -2,6 +2,7 @@ package com.harishdeshpande.springbootweb.springbootweb.services;
 
 import com.harishdeshpande.springbootweb.springbootweb.dto.EmployeeDTO;
 import com.harishdeshpande.springbootweb.springbootweb.entities.EmployeeEntity;
+import com.harishdeshpande.springbootweb.springbootweb.exceptions.ResourceNotFoundException;
 import com.harishdeshpande.springbootweb.springbootweb.repositories.EmployeeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.util.ReflectionUtils;
@@ -47,6 +48,7 @@ public class EmployeeService {
     }
 
     public EmployeeDTO updateEmployeeById(Long id, EmployeeDTO inputEmployee) {
+        isExistsByEmployeeId(id);
         EmployeeEntity toSaveEntity = modelMapper.map(inputEmployee, EmployeeEntity.class);
         toSaveEntity.setId(id);
         EmployeeEntity savedEmployeeEntity = employeeRepository.save(toSaveEntity);
@@ -55,20 +57,21 @@ public class EmployeeService {
     }
 
     private boolean isExistsByEmployeeId(Long employeeId){
-        return employeeRepository.existsById(employeeId);
+        boolean exists = employeeRepository.existsById(employeeId);
+        if(!exists) throw new ResourceNotFoundException("Employee Not found with id " + employeeId);
+        return true;
     }
 
     public boolean deleteEmployeeId(Long employeeId) {
-            boolean exists = isExistsByEmployeeId(employeeId);
-            if(!exists) return false;
+            isExistsByEmployeeId(employeeId);
+
             employeeRepository.deleteById(employeeId);
             return true;
 
     }
 
     public EmployeeDTO updatePartialEmployeeById(Map<String, Object> updates, Long employeeId) {
-        boolean exists = isExistsByEmployeeId(employeeId);
-        if(!exists) return null;
+        isExistsByEmployeeId(employeeId);
         EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).get();
         updates.forEach((field, value) -> {
             Field fieldToBeUpdated = ReflectionUtils.getRequiredField(EmployeeEntity.class, field);
